@@ -1,0 +1,66 @@
+# nginx-proxy/nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-proxy
+  namespace: nginx-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-proxy
+  template:
+    metadata:
+      labels:
+        app: nginx-proxy
+    spec:
+      containers:
+      - name: nginx
+        image: gcr.io/wordpres123/nginx-proxy.latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+
+---
+# nginx-proxy/nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-proxy
+  namespace: nginx-proxy
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: nginx-proxy
+
+---
+# nginx-proxy/nginx-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: nginx-proxy
+data:
+  nginx.conf: |
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://wordpress-service.wordpress.svc.cluster.local;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+

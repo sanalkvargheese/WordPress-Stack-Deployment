@@ -1,0 +1,44 @@
+# mariadb/mariadb-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: gcr.io/wordpres123/mariadb:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root_password
+        - name: MYSQL_DATABASE
+          value: wordpress_db
+        - name: MYSQL_USER
+          value: wordpress_user
+        - name: MYSQL_PASSWORD
+          value: wordpress_password
+        ports:
+        - containerPort: 3306
+
+---
+# mariadb/mariadb-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service
+  namespace: mariadb
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    app: mariadb
