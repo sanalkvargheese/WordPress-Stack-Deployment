@@ -1,6 +1,3 @@
-Sure, here is a detailed README file for the GitHub repository containing the deployment files for the WordPress stack with an Nginx reverse proxy and a MariaDB database, each deployed into its own namespace within a Kubernetes cluster:
-
----
 
 # WordPress Stack Deployment with Nginx Reverse Proxy and MariaDB in Kubernetes
 
